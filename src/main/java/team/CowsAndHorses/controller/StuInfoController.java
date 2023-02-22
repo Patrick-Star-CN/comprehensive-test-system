@@ -1,11 +1,16 @@
-package  team.CowsAndHorses.controller;
+package team.CowsAndHorses.controller;
 
-import jakarta.servlet.http.HttpSession;
+import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.dev33.satoken.stp.StpUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import team.CowsAndHorses.domain.StuInfoEntity;
+import team.CowsAndHorses.constant.AuthConst;
+import team.CowsAndHorses.constant.ErrorCode;
+import team.CowsAndHorses.domain.StuInfo;
+import team.CowsAndHorses.dto.AjaxResult;
+import team.CowsAndHorses.exception.AppException;
 import team.CowsAndHorses.service.StuInfoService;
 
 import java.util.Map;
@@ -14,62 +19,43 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/student")
-@SessionAttributes(names="student",types = StuInfoEntity.class)
+@SessionAttributes(names = "student", types = StuInfo.class)
 public class StuInfoController {
 
     @Autowired
     private StuInfoService stuservice;
 
-    @RequestMapping("/login")
+    @PostMapping("/login")
     @ResponseBody
-    public Result login(@RequestBody StuInfoEntity stuentity, HttpSession session){
-        StuInfoEntity stu =stuservice.login(stuentity);
-        Result res = new Result();
-        if(stu!=null){
-            res.setCode(1);
-            res.setData(null);
-            res.setMsg("登录成功");
-            session.setAttribute("student",stu);
-            return res;
+    public Object login(@RequestBody Map<String, Object> map) {
+        String stuNumber = (String) map.get("stu_number");
+        String stuPassword = (String) map.get("stu_password");
+        if (stuNumber == null || stuPassword == null) {
+            throw new AppException(ErrorCode.PARAM_ERROR);
         }
-        else {
-            res.setCode(1);
-            res.setData(null);
-            res.setMsg("登录失败");
-            return res;
+        StuInfo stu = stuservice.login(stuNumber, stuPassword);
+        if (stu == null) {
+            throw new AppException(ErrorCode.PASSWORD_OR_STUDENT_ID_ERROR);
         }
+        StpUtil.logout(stu.getId());
+        StpUtil.login(stu.getId());
+        return AjaxResult.SUCCESS();
     }
 
-    @RequestMapping("/changepassword")
+    @PostMapping("/change/password")
+    @SaCheckRole(AuthConst.R_student)
     @ResponseBody
-    public Result changePsd (@RequestBody Map<String,Object> map, HttpSession session){
-        Result res=new Result();
-        StuInfoEntity stu=(StuInfoEntity) session.getAttribute("student");
-        String psw=stu.getStuPassword();
-        String oldPassword= (String) map.get("old_password");
-        String newPassword= (String) map.get("new_password");
-        if(psw.equals(oldPassword)&&newPassword!=null){
+    public Object changePsd(@RequestBody Map<String, Object> map) {
+        StuInfo stu = stuservice.selectById(StpUtil.getLoginIdAsInt());
+        String pwd = stu.getStuPassword();
+        String oldPassword = (String) map.get("old_password");
+        String newPassword = (String) map.get("new_password");
+        if (pwd.equals(oldPassword) && newPassword != null) {
             stu.setStuPassword(newPassword);
-            if(stuservice.changePassword(stu)>0){
-                res.setCode(2);
-                res.setData(null);
-                res.setMsg("修改成功");
-                return res;
-            }else {
-                res.setCode(2);
-                res.setData(null);
-                res.setMsg("修改失败");
-                return res;
-            }
-        }
-        else{
-            res.setCode(2);
-            res.setData(null);
-            res.setMsg("修改失败");
-            return res;
+            stuservice.changePassword(stu);
+            return AjaxResult.SUCCESS();
+        } else {
+            return AjaxResult.FAIL("修改失败");
         }
     }
-
-
-
 }

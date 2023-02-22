@@ -15,11 +15,11 @@ public enum ErrorCode {
     USER_EXISTED(200101, "用户已存在"),
     /** 用户不存在 */
     USER_NOT_EXISTED(200102, "用户不存在"),
+    /** 用户名或密码错误 */
+    PASSWORD_OR_STUDENT_ID_ERROR(200103, "用户名或密码错误"),
 
     /** 服务器异常 */
     SERVER_ERROR(200300, "服务器异常"),
-    /** OpenID异常 */
-    OPEN_ID_ERROR(200301, "OpenID异常"),
     /** 参数有误 */
     PARAM_ERROR(200302, "参数有误"),
 

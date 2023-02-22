@@ -1,13 +1,18 @@
-package  team.CowsAndHorses.controller;
+package team.CowsAndHorses.controller;
 
 
+import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.dev33.satoken.stp.StpUtil;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import team.CowsAndHorses.domain.ScoreEntity;
-import team.CowsAndHorses.domain.StuInfoEntity;
+import team.CowsAndHorses.constant.AuthConst;
+import team.CowsAndHorses.domain.Score;
+import team.CowsAndHorses.domain.StuInfo;
+import team.CowsAndHorses.dto.AjaxResult;
+import team.CowsAndHorses.dto.ScoreDto;
+import team.CowsAndHorses.service.StuInfoService;
 import team.CowsAndHorses.service.StudentScoreService;
 
 
@@ -15,73 +20,49 @@ import team.CowsAndHorses.service.StudentScoreService;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/student")
-@SessionAttributes(names="student",types = StuInfoEntity.class)
+@SessionAttributes(names = "student", types = StuInfo.class)
 public class ScoreController {
-    @Autowired
-    private StudentScoreService scoservice;
+    final private StudentScoreService scoservice;
 
-    @PostMapping("/query/myself")
+    final private StuInfoService stuservice;
+
+    @GetMapping("/query/myself")
+    @SaCheckRole(value = {AuthConst.R_student})
     @ResponseBody
-    public Result queryMyScore(@RequestBody ScoreEntity sco, HttpSession session) {
-        Result res = new Result();
-        StuInfoEntity tempstu = (StuInfoEntity) session.getAttribute("student");
-        String num = tempstu.getStuNumber();
-        sco.setStuNumber(num);
-        ScoreEntity s = scoservice.queryMyScore(sco);
-        if (s != null) {
-            res.setCode(3);
-            res.setData(s);
-            res.setMsg("查询成功");
-            return res;
-        } else {
-            res.setCode(3);
-            res.setData(s);
-            res.setMsg("查询失败");
-            return res;
-        }
+    public Object queryMyScore(@RequestParam Integer year) {
+        StuInfo stu = stuservice.selectById(StpUtil.getLoginIdAsInt());
+        return AjaxResult.SUCCESS(scoservice.queryScore(stu.getStuNumber(), year));
     }
 
-    @PostMapping("/query/others")
+    @GetMapping("/query/others/{stu_number}")
+    @SaCheckRole(value = {AuthConst.R_student})
     @ResponseBody
-    public Result queryOtherScore(@RequestBody ScoreEntity sco) {
-        Result res = new Result();
-        ScoreEntity s = scoservice.queryOtherScore(sco);
-        if (s != null) {
-            res.setCode(3);
-            res.setData(s);
-            res.setMsg("查询成功");
-            return res;
-        } else {
-            res.setCode(3);
-            res.setData(s);
-            res.setMsg("查询失败");
-            return res;
-        }
+    public Object queryOtherScore(@PathVariable String stu_number, @RequestParam Integer year) {
+        return AjaxResult.SUCCESS(scoservice.queryScore(stu_number, year));
     }
 
-    @PostMapping("/submitdeclaration")
+    @PostMapping("/declaration/submit")
+    @SaCheckRole(value = {AuthConst.R_student})
     @ResponseBody
-    public Result subScore(@RequestBody ScoreEntity sco, HttpSession session) {
-        Result res = new Result();
-        StuInfoEntity tempStu = (StuInfoEntity) session.getAttribute("student");
-        String num = tempStu.getStuNumber();
-        sco.setStuNumber(num);
-        if (scoservice.subScore(sco) > 0) {
-            res.setCode(3);
-            res.setData(null);
-            res.setMsg("提交成功");
-            return res;
-        } else {
-            res.setCode(3);
-            res.setData(null);
-            res.setMsg("提交失败");
-            return res;
-        }
+    public Object subScore(@RequestBody ScoreDto sco) {
+        StuInfo stu = stuservice.selectById(StpUtil.getLoginIdAsInt());
+        scoservice.subScore(sco, stu);
+        return AjaxResult.SUCCESS();
     }
 
+    @GetMapping("/check")
+    @SaCheckRole(value = {AuthConst.R_student})
+    @ResponseBody
+    public Object checkScore(@RequestParam Integer year) {
+        StuInfo stu = stuservice.selectById(StpUtil.getLoginIdAsInt());
+        return AjaxResult.SUCCESS(scoservice.checkApproval(stu.getId(), year));
+    }
 
+    @GetMapping("/get/reason")
+    @SaCheckRole(value = {AuthConst.R_student})
+    @ResponseBody
+    public Object getReason(@RequestParam Integer year) {
+        StuInfo stu = stuservice.selectById(StpUtil.getLoginIdAsInt());
+        return AjaxResult.SUCCESS(scoservice.getReason(stu.getId(), year));
+    }
 }
-
-
-//
-//}

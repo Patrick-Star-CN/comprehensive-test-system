@@ -8,11 +8,11 @@
         <version>3.0.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>team.delete</groupId>
-    <artifactId>purse_buddy</artifactId>
+    <groupId>team.CowsAndHorses</groupId>
+    <artifactId>comprehensive_test_system</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>purse_buddy</name>
-    <description>purse_buddy</description>
+    <name>comprehensive_test_system</name>
+    <description>comprehensive_test_system</description>
     <properties>
         <java.version>18</java.version>
     </properties>
@@ -147,7 +147,7 @@
     </dependencyManagement>
 
     <build>
-        <finalName>PurseBuddy</finalName>
+        <finalName>ComprehensiveTestSystem</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

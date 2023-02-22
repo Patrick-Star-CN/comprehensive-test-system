@@ -3,21 +3,25 @@ package team.CowsAndHorses.service;
 
 import org.apache.ibatis.annotations.Param;
 import org.springframework.transaction.annotation.Transactional;
-import team.CowsAndHorses.domain.ScoreDoneEntity;
-import team.CowsAndHorses.domain.ScoreEntity;
+import team.CowsAndHorses.domain.ScoreDone;
+import team.CowsAndHorses.domain.Score;
+import team.CowsAndHorses.domain.StuInfo;
+import team.CowsAndHorses.dto.Item;
+import team.CowsAndHorses.dto.ScoreDto;
 
 import java.util.List;
+import java.util.Map;
 
 @Transactional
 public interface StudentScoreService {
 
-    public List<Integer> getIsApproval(ScoreDoneEntity scodo);
+    Score queryScore(String stuNumber, Integer year);
 
-    public ScoreEntity queryMyScore(ScoreEntity sco);
+    void subScore(ScoreDto sco, StuInfo stu);
 
-    public ScoreEntity queryOtherScore(ScoreEntity sco);
+    void subPicture(Item item, int scoreId, int modelId);
 
-    public int subScore(ScoreEntity sco);
+    Map<String, Boolean> checkApproval(Integer stuId, Integer year);
 
-    public int getReason(@Param("stuNumber") String stuNumber, @Param("year") int year);
+    Map<String, String> getReason(Integer stuId, Integer year);
 }

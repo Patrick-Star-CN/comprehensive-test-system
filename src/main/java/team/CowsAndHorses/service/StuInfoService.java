@@ -2,15 +2,16 @@ package team.CowsAndHorses.service;
 
 
 import org.springframework.transaction.annotation.Transactional;
-import team.CowsAndHorses.domain.StuInfoEntity;
+import team.CowsAndHorses.domain.StuInfo;
 
 @Transactional
 public interface StuInfoService {
 
-    public StuInfoEntity login(StuInfoEntity stu);
+    StuInfo login(String stuNumber, String stuPassword);
 
-    public int changePassword(StuInfoEntity stu);
+    void changePassword(StuInfo stu);
 
-    public StuInfoEntity selectByNumber(String stuNumber);
+    StuInfo selectByNumber(String stuNumber);
 
+    StuInfo selectById(int id);
 }

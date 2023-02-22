@@ -14,9 +14,8 @@ public class AuthConst {
 
     // --------------- 代表身份的权限 ---------------
 
-    /** 角色_id 超级管理员 进入后台权限，没有此权限无法进入后台管理 */
-    public static final String R_SUPPER = "super_admin";
-
+    public static final String R_student = "student"; 			 // 角色_id_学生
+    public static final String R_teacher   = "teacher"; 	    	 // 角色_id 辅导员
 
     // --------------- 所有权限码 ---------------
 

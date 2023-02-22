@@ -5,15 +5,13 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Builder;
 import lombok.Data;
 
-import java.sql.Date;
-
 @Data
 @Builder
-public class Time {
+public class TeacherInfo {
     @TableId(type = IdType.AUTO)
     private Integer id;
+    private String username;
+    private String password;
     private String college;
-    private Integer module;
-    private Integer year;
-    private Date ddl;
+    private Integer moduleId;
 }
