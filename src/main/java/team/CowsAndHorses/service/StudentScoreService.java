@@ -21,7 +21,7 @@ public interface StudentScoreService {
 
     void subPicture(Item item, int scoreId, int modelId);
 
-    Map<String, Boolean> checkApproval(Integer stuId, Integer year);
+    Map<String, Integer> checkApproval(Integer stuId, Integer year);
 
     Map<String, String> getReason(Integer stuId, Integer year);
 }

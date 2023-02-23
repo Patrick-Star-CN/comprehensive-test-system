@@ -13,7 +13,7 @@ public class Score {
     private String college;
     private int year;
     @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Boolean isApprovedDeyu;
+    private Integer isApprovedDeyu;
     private Double deyuGroupAssessScore;
     private String deyuGroupAssessContent;
     private Double deyuSocialRespScore;
@@ -22,24 +22,24 @@ public class Score {
     private String deyuHonorTotalContent;
     private String deyuReason;
     @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Boolean isApprovedTiyu;
+    private Integer isApprovedTiyu;
     private Double tiyuRacesScore;
     private String tiyuRacesContent;
     private String tiyuReason;
     @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Boolean isApprovedMeiyu;
+    private Integer isApprovedMeiyu;
     private Double meiyuPracticeScore;
     private String meiyuPracticeContent;
     private Double meiyuCompetitionScore;
     private String meiyuCompetitionContent;
     private String meiyuReason;
     @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Boolean isApprovedLaoyu;
+    private Integer isApprovedLaoyu;
     private Double laoyuRoomActivityScore;
     private String laoyuRoomActivityContent;
     private String laoyuReason;
     @TableField(updateStrategy = FieldStrategy.IGNORED)
-    private Boolean isApprovedCxcy;
+    private Integer isApprovedCxcy;
     private Double cxcyCompetitionScore;
     private String cxcyCompetitionContent;
     private Double cxcyLevelGradeScore;

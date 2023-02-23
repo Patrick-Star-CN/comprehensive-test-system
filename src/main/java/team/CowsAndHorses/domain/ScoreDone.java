@@ -36,7 +36,8 @@ public class ScoreDone {
     private Double tiyuScore2;
     private Double tiyuOtherTotal;
     private Double tiyuRaces;
-    private Double tiyuEarlyExercise;
+    private Double tiyuEarlyExercise1;
+    private Double tiyuEarlyExercise2;
 
     private Double meiyu;
     private Double meiyuPractice;

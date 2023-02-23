@@ -21,6 +21,7 @@ import team.CowsAndHorses.service.TeacherScoreService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 @RequiredArgsConstructor
@@ -37,7 +38,7 @@ public class TeacherScoreImpl implements TeacherScoreService {
         List<Score> scores = scoreDao.selectList(new QueryWrapper<Score>()
                 .eq("year", year)
                 .eq("college", teacher.getCollege())
-                .eq(ModuleConstant.moduleApproved[teacher.getModuleId()], false));
+                .eq(ModuleConstant.moduleApproved[teacher.getModuleId()], 0));
         List<ScoreFetchDto> list = new ArrayList<>();
         for (Score score : scores) {
             StuInfo stu = stuInfoService.selectById(score.getStuId());
@@ -192,16 +193,20 @@ public class TeacherScoreImpl implements TeacherScoreService {
     @Override
     public void approval(TeacherInfo teacher, int scoreId, int isApproval, String reason) {
         Score score = scoreDao.selectById(scoreId);
-        if (score == null || !score.getCollege().equals(teacher.getCollege())) {
+        if (score == null) {
             throw new AppException(ErrorCode.PARAM_ERROR);
         }
+        if (score.getCollege().equals(teacher.getCollege())) {
+            throw new AppException(ErrorCode.FORBIDDEN);
+        }
         UpdateWrapper<Score> wrapper = new UpdateWrapper<>();
-        if (isApproval == 0) {
+        if (isApproval == 2) {
             wrapper.eq("id", scoreId)
-                    .set(ModuleConstant.moduleReason[teacher.getModuleId()], reason);
-        } else {
+                    .set(ModuleConstant.moduleReason[teacher.getModuleId()], reason)
+                    .set(ModuleConstant.moduleApproved[teacher.getModuleId()], 2);
+        } else if (isApproval == 1) {
             wrapper.eq("id", scoreId)
-                    .set(ModuleConstant.moduleApproved[teacher.getModuleId()], true);
+                    .set(ModuleConstant.moduleApproved[teacher.getModuleId()], 1);
             ScoreDone one = scoreDoneDao.selectOne(new QueryWrapper<ScoreDone>()
                     .eq("stu_id", score.getStuId())
                     .eq("year", score.getYear()));
@@ -235,6 +240,8 @@ public class TeacherScoreImpl implements TeacherScoreService {
             case 4: {
                 scoreDone.setMeiyuPractice(score.getMeiyuPracticeScore());
                 scoreDone.setMeiyuCompetition(score.getMeiyuCompetitionScore());
+                scoreDone.setMeiyu(scoreDone.getMeiyuPractice() + scoreDone.getMeiyuCompetition());
+                scoreDone.setTotal(1.0);
                 break;
             }
             case 5: {
@@ -252,4 +259,104 @@ public class TeacherScoreImpl implements TeacherScoreService {
         }
     }
 
+    @Override
+    public void enter(TeacherInfo teacher, String stuNumber, int year, Map<String, String> map) {
+        StuInfo stu = stuInfoService.selectByNumber(stuNumber);
+        ScoreDone scoreDone = scoreDoneDao.selectOne(new QueryWrapper<ScoreDone>()
+                .eq("stu_id", stu.getId())
+                .eq("year", year));
+        if (scoreDone == null) {
+            throw new AppException(ErrorCode.PARAM_ERROR);
+        }
+        if (!scoreDone.getCollege().equals(teacher.getCollege())) {
+            throw new AppException(ErrorCode.FORBIDDEN);
+        }
+        switch (teacher.getModuleId()) {
+            case 1: {
+                double score1 = Double.parseDouble(map.get("deyu_basic_assess"));
+                double score2 = Double.parseDouble(map.get("deyu_political_learn"));
+                double score3 = Double.parseDouble(map.get("deyu_minus_total"));
+                if (score1 > 6.0 || score2 > 1.0) {
+                    throw new AppException(ErrorCode.PARAM_ERROR);
+                }
+                scoreDone.setDeyuBasicAssess(score1);
+                scoreDone.setDeyuPoliticalLearn(score2);
+                scoreDone.setDeyuMinusTotal(score3);
+                scoreDone.setDeyuOtherTotal(Math.min(scoreDone.getDeyuGroupAssess()
+                        + scoreDone.getDeyuSocialRespons() + scoreDone.getDeyuPoliticalLearn()
+                        + scoreDone.getDeyuMinusTotal() + scoreDone.getDeyuHonorTotal(), 4.0));
+                scoreDone.setDeyu(scoreDone.getDeyuBasicAssess() + scoreDone.getDeyuOtherTotal());
+                scoreDone.setTotal(scoreDone.getTotal() + 1);
+                break;
+            }
+            case 2: {
+                double score = Double.parseDouble(map.get("zhiyu_gpa"));
+                if (score > 60.0) {
+                    throw new AppException(ErrorCode.PARAM_ERROR);
+                }
+                scoreDone.setZhiyuGpa(score);
+                scoreDone.setZhiyu(scoreDone.getZhiyuGpa());
+                scoreDone.setTotal(scoreDone.getTotal() + 1);
+                break;
+            }
+            case 3: {
+                double score1 = Double.parseDouble(map.get("tiyu_score1"));
+                double score2 = Double.parseDouble(map.get("tiyu_score2"));
+                double score3 = Double.parseDouble(map.get("tiyu_early_exercise1"));
+                double score4 = Double.parseDouble(map.get("tiyu_early_exercise2"));
+                if (score1 > 2.5 || score2 > 2.5 || score3 > 0.5 || score4 > 0.5) {
+                    throw new AppException(ErrorCode.PARAM_ERROR);
+                }
+                scoreDone.setTiyuScore1(score1);
+                scoreDone.setTiyuScore2(score2);
+                scoreDone.setTiyuScoreTotal(scoreDone.getTiyuScore1() + scoreDone.getTiyuScore2());
+                scoreDone.setTiyuEarlyExercise1(score3);
+                scoreDone.setTiyuEarlyExercise2(score4);
+                scoreDone.setTiyuOtherTotal(scoreDone.getTiyuEarlyExercise1()
+                        + scoreDone.getTiyuEarlyExercise2() + scoreDone.getTiyuRaces());
+                scoreDone.setTiyu(scoreDone.getTiyuScoreTotal() + scoreDone.getTiyuOtherTotal());
+                scoreDone.setTotal(scoreDone.getTotal() + 1);
+                break;
+            }
+            case 5: {
+                double score1 = Double.parseDouble(map.get("laoyu_room_daily"));
+                double score2 = Double.parseDouble(map.get("laoyu_room_perform"));
+                double score3 = Double.parseDouble(map.get("laoyu_volunteer"));
+                double score4 = Double.parseDouble(map.get("laoyu_internship"));
+                if (score1 > 2.0 || score3 > 4.0) {
+                    throw new AppException(ErrorCode.PARAM_ERROR);
+                }
+                scoreDone.setLaoyuRoomDaily(score1);
+                scoreDone.setLaoyuRoomPerform(score2);
+                scoreDone.setLaoyuDailyTotal(scoreDone.getLaoyuRoomDaily()
+                        + scoreDone.getLaoyuRoomActivity() + scoreDone.getLaoyuRoomPerform());
+                scoreDone.setLaoyuVolunteer(score3);
+                scoreDone.setLaoyuInternship(score4);
+                scoreDone.setLaoyu(Math.min(scoreDone.getLaoyuDailyTotal()
+                        + scoreDone.getLaoyuVolunteer() + scoreDone.getLaoyuInternship(), 5.0));
+                scoreDone.setTotal(scoreDone.getTotal() + 1);
+                break;
+            }
+            case 6: {
+                double score = Double.parseDouble(map.get("cxcy_social_work"));
+                scoreDone.setCxcySocialWork(score);
+                scoreDone.setCxcyScoreTotal(scoreDone.getCxcyCompetition()
+                        + scoreDone.getCxcyLevelGrade());
+                scoreDone.setCxcy(Math.min(scoreDone.getCxcyScoreTotal()
+                        + scoreDone.getCxcySocialActivity() + scoreDone.getCxcySocialWork(), 12.0));
+                scoreDone.setTotal(scoreDone.getTotal() + 1);
+                break;
+            }
+            default: {
+            }
+        }
+        if (scoreDone.getTotal() == 6.0) {
+            scoreDone.setTotal(scoreDone.getDeyu()
+                    + scoreDone.getZhiyu() + scoreDone.getTiyu()
+                    + scoreDone.getMeiyu() + scoreDone.getLaoyu()
+                    + scoreDone.getCxcy());
+            scoreDone.setIsApproval(true);
+        }
+        scoreDoneDao.update(scoreDone, null);
+    }
 }

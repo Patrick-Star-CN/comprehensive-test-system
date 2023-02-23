@@ -11,6 +11,7 @@ import team.CowsAndHorses.dto.ItemScoreDto;
 import team.CowsAndHorses.dto.ScoreFetchDto;
 
 import java.util.List;
+import java.util.Map;
 
 @Transactional
 public interface TeacherScoreService {
@@ -19,4 +20,6 @@ public interface TeacherScoreService {
     ItemScoreDto queryItem(TeacherInfo teacher, int scoreId);
 
     void approval(TeacherInfo teacher, int scoreId, int isApproval, String reason);
+
+    void enter(TeacherInfo teacher, String stuNumber, int year, Map<String, String> map);
 }

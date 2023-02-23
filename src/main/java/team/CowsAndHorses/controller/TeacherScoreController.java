@@ -3,20 +3,17 @@ package team.CowsAndHorses.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import team.CowsAndHorses.constant.AuthConst;
-import team.CowsAndHorses.domain.ScoreDone;
-import team.CowsAndHorses.domain.Score;
-import team.CowsAndHorses.domain.StuInfo;
 import team.CowsAndHorses.domain.TeacherInfo;
 import team.CowsAndHorses.dto.AjaxResult;
 import team.CowsAndHorses.service.StuInfoService;
 import team.CowsAndHorses.service.TeacherScoreService;
 import team.CowsAndHorses.service.TeacherService;
+
+import java.util.Map;
 
 @Validated
 @RestController
@@ -31,7 +28,7 @@ public class TeacherScoreController {
     @GetMapping("/get/unapproved/list")
     @SaCheckRole(value = {AuthConst.R_teacher})
     @ResponseBody
-    public Object getUnenteredStu(@RequestParam Integer year) {
+    public AjaxResult<java.util.List<team.CowsAndHorses.dto.ScoreFetchDto>> getUnenteredStu(@RequestParam Integer year) {
         TeacherInfo teacher = teacherService.selectById(StpUtil.getLoginIdAsInt());
         return AjaxResult.SUCCESS(teacherScoreService.query(teacher, year));
     }
@@ -39,7 +36,7 @@ public class TeacherScoreController {
     @GetMapping("/get/items")
     @SaCheckRole(value = {AuthConst.R_teacher})
     @ResponseBody
-    public Object getItemScore(@RequestParam Integer score_id) {
+    public AjaxResult<team.CowsAndHorses.dto.ItemScoreDto> getItemScore(@RequestParam Integer score_id) {
         TeacherInfo teacher = teacherService.selectById(StpUtil.getLoginIdAsInt());
         return AjaxResult.SUCCESS(teacherScoreService.queryItem(teacher, score_id));
     }
@@ -47,9 +44,9 @@ public class TeacherScoreController {
     @PostMapping("/approval")
     @SaCheckRole(value = {AuthConst.R_teacher})
     @ResponseBody
-    public Object approval(@RequestParam Integer score_id,
-                           @RequestParam Integer is_approval,
-                           @RequestParam String reason) {
+    public AjaxResult<Object> approval(@RequestParam Integer score_id,
+                                       @RequestParam Integer is_approval,
+                                       @RequestParam String reason) {
         TeacherInfo teacher = teacherService.selectById(StpUtil.getLoginIdAsInt());
         teacherScoreService.approval(teacher, score_id, is_approval, reason);
         return AjaxResult.SUCCESS();
@@ -58,13 +55,25 @@ public class TeacherScoreController {
     @PostMapping("/approval/list")
     @SaCheckRole(value = {AuthConst.R_teacher})
     @ResponseBody
-    public Object approvalList(@RequestParam Integer[] score_id,
-                               @RequestParam Integer is_approval,
-                               @RequestParam String reason) {
+    public AjaxResult<Object> approvalList(@RequestParam Integer[] score_id,
+                                           @RequestParam Integer is_approval,
+                                           @RequestParam String reason) {
         TeacherInfo teacher = teacherService.selectById(StpUtil.getLoginIdAsInt());
         for (Integer id : score_id) {
             teacherScoreService.approval(teacher, id, is_approval, reason);
         }
+        return AjaxResult.SUCCESS();
+    }
+
+    @PostMapping("/enter/score")
+    @SaCheckRole(value = {AuthConst.R_teacher})
+    @ResponseBody
+    public AjaxResult<Object> enterScore(@RequestBody Map<String, Object> map) {
+        TeacherInfo teacher = teacherService.selectById(StpUtil.getLoginIdAsInt());
+        int year = (Integer) map.get("year");
+        String stuNumber = (String) map.get("stu_number");
+        Map<String, String> scoreMap = (Map<String, String>) map.get("score");
+        teacherScoreService.enter(teacher, stuNumber, year, scoreMap);
         return AjaxResult.SUCCESS();
     }
 }

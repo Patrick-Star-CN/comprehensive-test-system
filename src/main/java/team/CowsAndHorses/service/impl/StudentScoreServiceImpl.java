@@ -66,7 +66,7 @@ public class StudentScoreServiceImpl implements StudentScoreService {
             score.setDeyuSocialRespContent(sco.getDeyu_social_resp().getContent());
             score.setDeyuHonorTotalScore(Double.parseDouble(sco.getDeyu_honor_total().getScore()));
             score.setDeyuHonorTotalContent(sco.getDeyu_honor_total().getContent());
-            score.setIsApprovedDeyu(false);
+            score.setIsApprovedDeyu(0);
         } else if (one != null) {
             score.setDeyuGroupAssessScore(one.getDeyuGroupAssessScore());
             score.setDeyuGroupAssessContent(one.getDeyuGroupAssessContent());
@@ -80,7 +80,7 @@ public class StudentScoreServiceImpl implements StudentScoreService {
         if (timeService.query(3, stu.getStuCollege(), year) == null || timeService.query(3, stu.getStuCollege(), year).getDdl().after(now)) {
             score.setTiyuRacesScore(Double.parseDouble(sco.getTiyu_races().getScore()));
             score.setTiyuRacesContent(sco.getTiyu_races().getContent());
-            score.setIsApprovedTiyu(false);
+            score.setIsApprovedTiyu(0);
         } else if (one != null) {
             score.setTiyuRacesScore(one.getTiyuRacesScore());
             score.setTiyuRacesContent(one.getTiyuRacesContent());
@@ -92,7 +92,7 @@ public class StudentScoreServiceImpl implements StudentScoreService {
             score.setMeiyuPracticeContent(sco.getMeiyu_practice().getContent());
             score.setMeiyuCompetitionScore(Double.parseDouble(sco.getMeiyu_competition().getScore()));
             score.setMeiyuCompetitionContent(sco.getMeiyu_competition().getContent());
-            score.setIsApprovedMeiyu(false);
+            score.setIsApprovedMeiyu(0);
         } else if (one != null) {
             score.setMeiyuPracticeScore(one.getMeiyuPracticeScore());
             score.setMeiyuPracticeContent(one.getMeiyuPracticeContent());
@@ -104,7 +104,7 @@ public class StudentScoreServiceImpl implements StudentScoreService {
         if (timeService.query(5, stu.getStuCollege(), year) == null || timeService.query(5, stu.getStuCollege(), year).getDdl().after(now)) {
             score.setLaoyuRoomActivityScore(Double.parseDouble(sco.getLaoyu_room_activity().getScore()));
             score.setLaoyuRoomActivityContent(sco.getLaoyu_room_activity().getContent());
-            score.setIsApprovedLaoyu(false);
+            score.setIsApprovedLaoyu(0);
         } else if (one != null) {
             score.setLaoyuRoomActivityScore(one.getLaoyuRoomActivityScore());
             score.setLaoyuRoomActivityContent(one.getLaoyuRoomActivityContent());
@@ -118,7 +118,7 @@ public class StudentScoreServiceImpl implements StudentScoreService {
             score.setCxcyLevelGradeContent(sco.getCxcy_level_grade().getContent());
             score.setCxcySocialActivityScore(Double.parseDouble(sco.getCxcy_social_activity().getScore()));
             score.setCxcySocialActivityContent(sco.getCxcy_social_activity().getContent());
-            score.setIsApprovedCxcy(false);
+            score.setIsApprovedCxcy(0);
         } else if (one != null) {
             score.setCxcyCompetitionScore(one.getCxcyCompetitionScore());
             score.setCxcyCompetitionContent(one.getCxcyCompetitionContent());
@@ -195,8 +195,8 @@ public class StudentScoreServiceImpl implements StudentScoreService {
     }
 
     @Override
-    public Map<String, Boolean> checkApproval(Integer stuId, Integer year) {
-        Map<String, Boolean> map = new LinkedHashMap<>();
+    public Map<String, Integer> checkApproval(Integer stuId, Integer year) {
+        Map<String, Integer> map = new LinkedHashMap<>();
         Score score = scoreDao.selectOne(new QueryWrapper<Score>()
                 .eq("stu_id", stuId)
                 .eq("year", year));
