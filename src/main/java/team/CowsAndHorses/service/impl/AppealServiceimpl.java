@@ -45,7 +45,8 @@ public class AppealServiceimpl implements AppealService {
         return appealDao.selectList(new QueryWrapper<Appeal>()
                 .eq("module_id", teacher.getModuleId())
                 .eq("college", teacher.getCollege())
-                .eq("year", year));
+                .eq("year", year)
+                .eq("status", AppealStatus.UNPROCESSED));
     }
 
     @Override

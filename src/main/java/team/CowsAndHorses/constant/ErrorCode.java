@@ -21,6 +21,9 @@ public enum ErrorCode {
     /** 用户无权限 */
     FORBIDDEN(200104, "用户无权限"),
 
+    /** 已处理 */
+    PROCESSED(200200, "已处理"),
+
     /** 服务器异常 */
     SERVER_ERROR(200300, "服务器异常"),
     /** 参数有误 */

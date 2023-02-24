@@ -22,6 +22,8 @@ public class Score {
     private String deyuHonorTotalContent;
     private String deyuReason;
     @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private Integer isApprovedZhiyu;
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer isApprovedTiyu;
     private Double tiyuRacesScore;
     private String tiyuRacesContent;

@@ -28,7 +28,7 @@ public class TeacherScoreController {
     @GetMapping("/get/unapproved/list")
     @SaCheckRole(value = {AuthConst.R_teacher})
     @ResponseBody
-    public AjaxResult<java.util.List<team.CowsAndHorses.dto.ScoreFetchDto>> getUnenteredStu(@RequestParam Integer year) {
+    public Object getUnenteredStu(@RequestParam Integer year) {
         TeacherInfo teacher = teacherService.selectById(StpUtil.getLoginIdAsInt());
         return AjaxResult.SUCCESS(teacherScoreService.query(teacher, year));
     }
@@ -36,7 +36,7 @@ public class TeacherScoreController {
     @GetMapping("/get/items")
     @SaCheckRole(value = {AuthConst.R_teacher})
     @ResponseBody
-    public AjaxResult<team.CowsAndHorses.dto.ItemScoreDto> getItemScore(@RequestParam Integer score_id) {
+    public Object getItemScore(@RequestParam Integer score_id) {
         TeacherInfo teacher = teacherService.selectById(StpUtil.getLoginIdAsInt());
         return AjaxResult.SUCCESS(teacherScoreService.queryItem(teacher, score_id));
     }
@@ -44,7 +44,7 @@ public class TeacherScoreController {
     @PostMapping("/approval")
     @SaCheckRole(value = {AuthConst.R_teacher})
     @ResponseBody
-    public AjaxResult<Object> approval(@RequestParam Integer score_id,
+    public Object approval(@RequestParam Integer score_id,
                                        @RequestParam Integer is_approval,
                                        @RequestParam String reason) {
         TeacherInfo teacher = teacherService.selectById(StpUtil.getLoginIdAsInt());
@@ -55,7 +55,7 @@ public class TeacherScoreController {
     @PostMapping("/approval/list")
     @SaCheckRole(value = {AuthConst.R_teacher})
     @ResponseBody
-    public AjaxResult<Object> approvalList(@RequestParam Integer[] score_id,
+    public Object approvalList(@RequestParam Integer[] score_id,
                                            @RequestParam Integer is_approval,
                                            @RequestParam String reason) {
         TeacherInfo teacher = teacherService.selectById(StpUtil.getLoginIdAsInt());
@@ -68,12 +68,48 @@ public class TeacherScoreController {
     @PostMapping("/enter/score")
     @SaCheckRole(value = {AuthConst.R_teacher})
     @ResponseBody
-    public AjaxResult<Object> enterScore(@RequestBody Map<String, Object> map) {
+    public Object enterScore(@RequestBody Map<String, Object> map) {
         TeacherInfo teacher = teacherService.selectById(StpUtil.getLoginIdAsInt());
         int year = (Integer) map.get("year");
         String stuNumber = (String) map.get("stu_number");
         Map<String, String> scoreMap = (Map<String, String>) map.get("score");
         teacherScoreService.enter(teacher, stuNumber, year, scoreMap);
+        return AjaxResult.SUCCESS();
+    }
+
+    @PutMapping("/change/score")
+    @SaCheckRole(value = {AuthConst.R_teacher})
+    @ResponseBody
+    public Object changeScore(@RequestBody Map<String, Object> map) {
+        TeacherInfo teacher = teacherService.selectById(StpUtil.getLoginIdAsInt());
+        int scoreDoneId = (Integer) map.get("score_done_id");
+        Map<String, String> scoreMap = (Map<String, String>) map.get("score");
+        teacherScoreService.change(teacher, scoreDoneId, scoreMap);
+        return AjaxResult.SUCCESS();
+    }
+
+    @GetMapping("/get/approved/list")
+    @SaCheckRole(value = {AuthConst.R_teacher})
+    @ResponseBody
+    public Object getScoreDone(@RequestParam Integer year) {
+        TeacherInfo teacher = teacherService.selectById(StpUtil.getLoginIdAsInt());
+        return AjaxResult.SUCCESS(teacherScoreService.queryDone(teacher, year));
+    }
+
+    @GetMapping("/get/approved/detail")
+    @SaCheckRole(value = {AuthConst.R_teacher})
+    @ResponseBody
+    public Object getScoreDoneDetail(@RequestParam Integer score_done_id) {
+        TeacherInfo teacher = teacherService.selectById(StpUtil.getLoginIdAsInt());
+        return AjaxResult.SUCCESS(teacherScoreService.queryDoneDetail(teacher, score_done_id));
+    }
+
+    @PutMapping("/withdraw/approval")
+    @SaCheckRole(value = {AuthConst.R_teacher})
+    @ResponseBody
+    public Object withdrawScore(@RequestParam Integer year, @RequestParam String stu_number) {
+        TeacherInfo teacher = teacherService.selectById(StpUtil.getLoginIdAsInt());
+        teacherScoreService.withdraw(teacher, stu_number, year);
         return AjaxResult.SUCCESS();
     }
 }

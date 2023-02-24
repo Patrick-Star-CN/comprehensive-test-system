@@ -1,35 +1,15 @@
 package  team.CowsAndHorses.domain;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
 public class Reason {
+    @TableId(type = IdType.AUTO)
     private int id;
+    private int teacherId;
     private String content;
-
-    @Override
-    public String toString() {
-        return "ReasonEntity{" +
-                "id=" + id +
-                ", content='" + content + '\'' +
-                '}';
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
 }

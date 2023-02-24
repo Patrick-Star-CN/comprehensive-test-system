@@ -77,6 +77,11 @@ public class StudentScoreServiceImpl implements StudentScoreService {
             score.setIsApprovedDeyu(one.getIsApprovedDeyu());
             score.setDeyuReason(one.getDeyuReason());
         }
+        if (timeService.query(2, stu.getStuCollege(), year) == null || timeService.query(2, stu.getStuCollege(), year).getDdl().after(now)) {
+            score.setIsApprovedZhiyu(0);
+        } else if (one != null) {
+            score.setIsApprovedZhiyu(one.getIsApprovedZhiyu());
+        }
         if (timeService.query(3, stu.getStuCollege(), year) == null || timeService.query(3, stu.getStuCollege(), year).getDdl().after(now)) {
             score.setTiyuRacesScore(Double.parseDouble(sco.getTiyu_races().getScore()));
             score.setTiyuRacesContent(sco.getTiyu_races().getContent());
