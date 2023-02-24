@@ -8,8 +8,11 @@ import org.springframework.stereotype.Service;
 import team.CowsAndHorses.constant.ErrorCode;
 import team.CowsAndHorses.dao.PictureDao;
 import team.CowsAndHorses.dao.ScoreDao;
+import team.CowsAndHorses.dao.ScoreDoneDao;
+import team.CowsAndHorses.dao.StuInfoDao;
 import team.CowsAndHorses.domain.Picture;
 import team.CowsAndHorses.domain.Score;
+import team.CowsAndHorses.domain.ScoreDone;
 import team.CowsAndHorses.domain.StuInfo;
 import team.CowsAndHorses.dto.Item;
 import team.CowsAndHorses.dto.ScoreDto;
@@ -26,15 +29,26 @@ import java.util.*;
 public class StudentScoreServiceImpl implements StudentScoreService {
 
     final ScoreDao scoreDao;
+    final ScoreDoneDao scoreDoneDao;
     final TimeService timeService;
     final PictureDao pictureDao;
+    final StuInfoDao stuInfoDao;
 
 
     @Override
-    public Score queryScore(String stuNumber, Integer year) {
-        return scoreDao.selectOne(new QueryWrapper<Score>()
-                .eq("stu_number", stuNumber)
+    public Object queryScore(StuInfo stu, String stuNumber, Integer year) {
+        StuInfo student = stuInfoDao.selectOne(new QueryWrapper<StuInfo>()
+                .eq("stu_number", stuNumber));
+        ScoreDone score = scoreDoneDao.selectOne(new QueryWrapper<ScoreDone>()
+                .eq("stu_id", student.getId())
                 .eq("year", year));
+        if (score == null || !score.getIsApproval()) {
+            return null;
+        }
+        if (stu.getId() != score.getStuId()) {
+            return score.getTotal();
+        }
+        return score;
     }
 
     @Override

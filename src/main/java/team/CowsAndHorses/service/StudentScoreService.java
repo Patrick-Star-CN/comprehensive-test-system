@@ -15,7 +15,7 @@ import java.util.Map;
 @Transactional
 public interface StudentScoreService {
 
-    Score queryScore(String stuNumber, Integer year);
+    Object queryScore(StuInfo stu, String stuNumber, Integer year);
 
     void subScore(ScoreDto sco, StuInfo stu);
 

@@ -31,14 +31,15 @@ public class ScoreController {
     @ResponseBody
     public Object queryMyScore(@RequestParam Integer year) {
         StuInfo stu = stuservice.selectById(StpUtil.getLoginIdAsInt());
-        return AjaxResult.SUCCESS(scoservice.queryScore(stu.getStuNumber(), year));
+        return AjaxResult.SUCCESS(scoservice.queryScore(stu, stu.getStuNumber(), year));
     }
 
     @GetMapping("/query/others/{stu_number}")
     @SaCheckRole(value = {AuthConst.R_student})
     @ResponseBody
     public Object queryOtherScore(@PathVariable String stu_number, @RequestParam Integer year) {
-        return AjaxResult.SUCCESS(scoservice.queryScore(stu_number, year));
+        StuInfo stu = stuservice.selectById(StpUtil.getLoginIdAsInt());
+        return AjaxResult.SUCCESS(scoservice.queryScore(stu, stu_number, year));
     }
 
     @PostMapping("/declaration/submit")
